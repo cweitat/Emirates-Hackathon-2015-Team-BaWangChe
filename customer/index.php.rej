@@ -1,0 +1,79 @@
+diff a/customer/index.php b/customer/index.php	(rejected hunks)
+@@ -115,34 +115,50 @@
+               <thead>
+               
+                 <tr>
+-                <th><h4>Driver</h4></th>
+-                <th><h4>Date</h4></th>
+-                <th><h4>Time</h4></th>
+-                <th><h4>Location</h4></th>
+-                <th><h4></h4></th>
+-</tr>
++                  <th><h4>Driver</h4></th>
++                  <th><h4>Date</h4></th>
++                  <th><h4>Time</h4></th>
++                  <th><h4>Location</h4></th>
++                  <th><h4></h4></th>
++                </tr>
+               </thead> 
+-    <tbody>
+-           <tr>
+-            <td>
+-              Ahmad
+-  <td>
+-    12/12/2015
+-  </td>
+-<td>
+-06:00
+-</td>
+-
+-<td>
+-  Kintamani, Bali, Indonesia
+-</td>
+-
+-
+-<td>   <button type="button">View</button>
+-  </td>
+-  </tr>
+-            
+-
++            <tbody>
++              <!--
++              <tr>
++                <td>Ahmad</td>
++                <td>12/12/2015</td>
++                <td>06:00</td>
++                <td>Kintamani, Bali, Indonesia</td>
++                <td><button type="button">View</button></td>
++              </tr>
++            -->
++            <?php
++            $query = new ParseQuery("LISTING");
++            $query->equalTo("STATUS","Pending");
++            $query->equalTo("LIST_BY",$user->getObjectId());
++            $query->each(function($obj) {
++              //SELECT * FROM BIDDING WHERE LISTING_ID = LISTING.objectId
++              $qry1 = new ParseQuery("BIDDING");
++              $qry1->equalTo("LISTING_ID",$obj->getObjectId());
++              $qry1->each(function($obj2) {
++                //SELECT name FROM User WHERE objectId = BIDDING.DRIVER_ID
++                $dr = new ParseUser(null,$obj2->get("DRIVER_ID"));
++                $dr->fetch();
++                $nme = $dr->get("name");
++                echo("<tr>"."\n");
++                echo("<td>".$nme."</td>"."\n");
++                echo("<td>".date_format($obj2->getCreatedAt(),"Y-m-d")."</td>"."\n");
++                echo("<td>".date_format($obj2->getCreatedAt(),"H:i")."</td>"."\n");
++                //SELECT COUNTRY FROM LISTING WHERE LISTING.ObjectId = BIDDING.LISTING_ID
++                $qry2 = new ParseQuery("LISTING");
++                $qry2 -> get($obj2->get("LISTING_ID"));
++                $fst = $qry2->first();
++                echo("<td>".$fst->get("COUNTRY")."</td>"."\n");
++                echo("<td><button type=\"button\">View</button></td>\n");
++                echo("</tr>"."\n");
++              });
++            });
++          ?>
+             </tbody>
+           </table>
+         
